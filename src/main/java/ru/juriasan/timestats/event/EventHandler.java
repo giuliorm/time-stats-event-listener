@@ -6,12 +6,22 @@ import java.util.Iterator;
 
 public class EventHandler {
 
-    private static final int MAX_LIST_SIZE = 100;
+    private static final int MAX_LIST_SIZE = 4000000;
+    private int maxListSize;
     private Deque<Event> eventList;
     private Event lastEvent;
     private long timePeriod;
     private String timePeriodName;
     private long counter;
+
+    public EventHandler(long timePeriod, String timePeriodName, int maxEventListSize) {
+        this.eventList = new ArrayDeque<>();
+        this.lastEvent = null;
+        this.timePeriod = timePeriod;
+        this.timePeriodName = timePeriodName;
+        this.counter = 0;
+        this.maxListSize = maxEventListSize;
+    }
 
     public EventHandler(long timePeriod, String timePeriodName) {
         this.eventList = new ArrayDeque<>();
@@ -19,7 +29,9 @@ public class EventHandler {
         this.timePeriod = timePeriod;
         this.timePeriodName = timePeriodName;
         this.counter = 0;
+        this.maxListSize = MAX_LIST_SIZE;
     }
+
 
     public long getTimePeriod() {
         return this.timePeriod;
@@ -30,7 +42,7 @@ public class EventHandler {
     }
 
     private void updateCounter() {
-        if (eventList.size() >= MAX_LIST_SIZE) {
+        if (eventList.size() >= maxListSize) {
             counter += eventList.size();
             eventList.clear();
         }
