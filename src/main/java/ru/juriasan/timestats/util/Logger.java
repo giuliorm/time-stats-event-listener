@@ -1,5 +1,10 @@
 package ru.juriasan.timestats.util;
 
+/**
+ * This is a simple implementation for logger class,
+ * which write all the messages to console in different formats
+ * (info and error).
+ */
 public class Logger {
 
     private final static String logFormat = "%s: %s";

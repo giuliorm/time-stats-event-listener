@@ -8,8 +8,18 @@ import java.util.Date;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
+/**
+ * This class is an implementation for a TimeStatsEventListener
+ * object, which listens for the events in the system, and when
+ * they occur, determines the time gap of the event: minute,
+ * hour or day, and increments the counter of events per last
+ * minute/hour/day respectively.
+ * This class implements Runnable interface, where the "run" method
+ * is an entry point for listener process.
+* */
 public class TimeStatsEventListener implements Runnable {
 
+    private static final int LOOP_TIMEOUT = 100;
     BlockingQueue<Event> sharedQueue = new LinkedBlockingQueue<>();
 
     private static TimeStatsEventListener instance;
@@ -33,21 +43,38 @@ public class TimeStatsEventListener implements Runnable {
         return instance;
     }
 
+    /**
+     * Another threads can call this method and pass an event e there.
+     * This method just adds the event to the tasks queue, which another
+     * thread, represented by a "run" method, reads from.
+     *
+     * @param e an event
+     */
     public void accept(Event e) {
         if (e != null)
             this.sharedQueue.add(e);
     }
 
+    /**
+     * This method is an entry point for a listener process.
+     * It polls the task queue in the loop and, if there are any tasks,
+     * gets the last and tries to handle it and check, which time gap this
+     * event belongs to. If there is no any gap for an event, the message
+     * is written to a logger, and process continues. If the LOOP_TIMEOUT
+     * number of queries to the queue have not succeeded, then process
+     * finishes.
+     */
     public void run() {
         try {
-            while(true) {
+            int timeoutCount = 0;
+            while(timeoutCount < LOOP_TIMEOUT) {
                 if (Thread.currentThread().isInterrupted())
                     throw new InterruptedException();
 
                 Event e = sharedQueue.poll();
                 if (e != null) {
-                    boolean eventHasBeenHandled = false;
-                    eventHasBeenHandled = minuteHandler.handleEvent(e);
+                    timeoutCount = 0;
+                    boolean eventHasBeenHandled = minuteHandler.handleEvent(e);
                     eventHasBeenHandled |= hourHandler.handleEvent(e);
                     eventHasBeenHandled |= dayHandler.handleEvent(e);
                     if (!eventHasBeenHandled)
@@ -57,14 +84,15 @@ public class TimeStatsEventListener implements Runnable {
                         Logger.getInstance().info(toString());
                     }
 
-                }
+                } else timeoutCount++;
             }
         }
         catch (InterruptedException ex) {
-            ex.printStackTrace();
-            Logger.getInstance().info("Producer finished its work.");
+            Logger.getInstance().error(ex.getMessage());
         }
-
+        finally {
+            Logger.getInstance().info("TimeStatsEventListened is finishing its work.");
+        }
     }
 
     @Override

@@ -1,6 +1,5 @@
 package ru.juriasan.timestats.event;
 
-import java.time.DateTimeException;
 import java.util.Date;
 
 public class Event {
@@ -36,18 +35,10 @@ public class Event {
     }
 
     public static String formatTime(long time) {
-//        long days = System.currentTimeMillis() / DAY - time / DAY;
-//        long hour = System.currentTimeMillis() / HOUR -  time  / HOUR;
-//        long min = System.currentTimeMillis() / MIN  - time / MIN;
-//        long sec = System.currentTimeMillis() / SEC - time / SEC;
-
-     //   return String.format("%d days, %d hours, %d minutes, %d seconds, %d millis",
-       //         days, hour, min, sec, System.currentTimeMillis() - time);
         return String.format("%s ", new Date().toString());
     }
     @Override
     public String toString() {
-
-        return String.format(" event %s, time %s. ", name == null ? "" : name, formatTime(this.timeMillis));
+        return String.format(" event %s, time %s ", name == null ? "" : name, formatTime(this.timeMillis));
     }
 }
