@@ -10,12 +10,14 @@ public class EventHandler {
     private Deque<Event> eventList;
     private Event lastEvent;
     private long timePeriod;
+    private String timePeriodName;
     private long counter;
 
-    public EventHandler(long timePeriod) {
+    public EventHandler(long timePeriod, String timePeriodName) {
         this.eventList = new ArrayDeque<>();
         this.lastEvent = null;
         this.timePeriod = timePeriod;
+        this.timePeriodName = timePeriodName;
         this.counter = 0;
     }
 
@@ -38,13 +40,14 @@ public class EventHandler {
         }
     }
 
-    public void handleEvent(Event event) {
+    public boolean handleEvent(Event event) {
         if (event != null) {
             if (!handleTimePeriodBorder(event))
-                return;
+                return false;
             updateCounter();
         }
         clearList();
+        return true;
     }
 
     private long clearList() {
@@ -76,5 +79,11 @@ public class EventHandler {
             }
         }
         return true;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("Event handler: %d events per %s", getEventsPerTimePeriod(),
+                Event.formatTime(timePeriodName, timePeriod));
     }
 }

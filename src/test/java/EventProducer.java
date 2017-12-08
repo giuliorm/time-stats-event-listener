@@ -1,5 +1,5 @@
 import ru.juriasan.timestats.event.Event;
-import ru.juriasan.timestats.StatsEventListener;
+import ru.juriasan.timestats.TimeStatsEventListener;
 
 import java.util.Random;
 import java.util.concurrent.ExecutorService;
@@ -15,7 +15,7 @@ public class EventProducer implements Runnable {
         int l = new Random(10).nextInt();
         l = l < 0 ? 30 : l;
         for (int i = 0; i <l ; i++) {
-            StatsEventListener.getInstance().accept(new Event(System.currentTimeMillis()));
+            TimeStatsEventListener.getInstance().accept(new Event(System.currentTimeMillis()));
             try {
                 Thread.sleep(5000);
             }
