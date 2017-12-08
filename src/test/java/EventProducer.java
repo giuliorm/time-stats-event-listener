@@ -1,9 +1,7 @@
 import ru.juriasan.timestats.event.Event;
 import ru.juriasan.timestats.TimeStatsEventListener;
-
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
+import ru.juriasan.timestats.util.Logger;
+import sun.rmi.runtime.Log;
 
 /**
  * This class emulates an event flow in the system. It generates
@@ -12,21 +10,32 @@ import java.util.concurrent.Executors;
  */
 public class EventProducer implements Runnable {
 
-    private static final int MINIMUM_SLEEP_TIME = 50;
-    private static final int MAXIMUM_SLEEP_TIME = 5000;
+    private int sleepMillis;
 
+    /**
+     * Constructs EventProducer.
+     *
+     * @param sleepMillis amount of milliseconds to this thread to sleep.
+     */
+    public EventProducer(int sleepMillis) {
+        this.sleepMillis = sleepMillis != -1 ? sleepMillis : Event.SEC;
+    }
     public EventProducer() {
+        this.sleepMillis = Event.SEC;
     }
 
     @Override
     public void run() {
         while(true) {
+            if (Thread.currentThread().isInterrupted()) {
+                Logger.getInstance().info("EventProducer finishes its work.");
+                break;
+            }
+
             Event e = new Event(System.currentTimeMillis());
             TimeStatsEventListener.getInstance().accept(e);
             try {
-
-                int sleepTime =  MINIMUM_SLEEP_TIME + (int)(Math.random() * MAXIMUM_SLEEP_TIME);
-                Thread.sleep(sleepTime);
+                Thread.sleep(sleepMillis);
             }
             catch (InterruptedException ex) {
                 ex.printStackTrace();

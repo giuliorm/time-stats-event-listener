@@ -19,7 +19,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 * */
 public class TimeStatsEventListener implements Runnable {
 
-    private static final int LOOP_TIMEOUT = 100;
     BlockingQueue<Event> sharedQueue = new LinkedBlockingQueue<>();
 
     private static TimeStatsEventListener instance;
@@ -60,20 +59,18 @@ public class TimeStatsEventListener implements Runnable {
      * It polls the task queue in the loop and, if there are any tasks,
      * gets the last and tries to handle it and check, which time gap this
      * event belongs to. If there is no any gap for an event, the message
-     * is written to a logger, and process continues. If the LOOP_TIMEOUT
-     * number of queries to the queue have not succeeded, then process
-     * finishes.
+     * is written to a logger, and process continues. The process finishes,
+     * when interrupted.
      */
     public void run() {
         try {
             int timeoutCount = 0;
-            while(timeoutCount < LOOP_TIMEOUT) {
+            while(true) {
                 if (Thread.currentThread().isInterrupted())
                     throw new InterruptedException();
 
                 Event e = sharedQueue.poll();
                 if (e != null) {
-                    timeoutCount = 0;
                     boolean eventHasBeenHandled = minuteHandler.handleEvent(e);
                     eventHasBeenHandled |= hourHandler.handleEvent(e);
                     eventHasBeenHandled |= dayHandler.handleEvent(e);
@@ -84,7 +81,7 @@ public class TimeStatsEventListener implements Runnable {
                         Logger.getInstance().info(toString());
                     }
 
-                } else timeoutCount++;
+                }
             }
         }
         catch (InterruptedException ex) {
@@ -97,7 +94,7 @@ public class TimeStatsEventListener implements Runnable {
 
     @Override
     public String toString() {
-        return String.format("%d mins, %d hours %d days, time %s",
+        return String.format("%d per min, %d per hour %d per day, time %s",
                 minuteHandler.getEventsPerTimePeriod(),
                 hourHandler.getEventsPerTimePeriod(),
                 dayHandler.getEventsPerTimePeriod(),

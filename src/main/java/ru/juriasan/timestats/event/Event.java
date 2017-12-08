@@ -18,6 +18,9 @@ public class Event {
     private long timeMillis;
 
     public Event(long timeMillis) {
+        if (timeMillis < 0)
+            throw new RuntimeException("Cannot create event with parameters which could be " +
+                    "less than zero");
         this.timeMillis = timeMillis;
     }
 

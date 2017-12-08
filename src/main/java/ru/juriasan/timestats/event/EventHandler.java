@@ -128,10 +128,13 @@ public class EventHandler {
     */
     private boolean handleEventTime(Event currentEvent) {
         if (lastEvent == null) {
+            if (System.currentTimeMillis() - currentEvent.getTime() > timePeriod)
+                return false;
             this.lastEvent = currentEvent;
         } else if (currentEvent != null) {
-            long diff = currentEvent.getTime() - lastEvent.getTime();
-            if (diff <= timePeriod) {
+            long eventsDiff = currentEvent.getTime() - lastEvent.getTime();
+            long nowDiff = System.currentTimeMillis() - lastEvent.getTime();
+            if (eventsDiff <= timePeriod && nowDiff  <= timePeriod) {
                 eventList.add(currentEvent);
             }
             else {
