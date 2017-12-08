@@ -6,7 +6,7 @@ import java.util.Iterator;
 
 public class EventHandler {
 
-    private static final int MAX_LIST_SIZE = 4000000;
+    private static final int MAX_LIST_SIZE = 100;
     private Deque<Event> eventList;
     private Event lastEvent;
     private long timePeriod;
@@ -19,10 +19,6 @@ public class EventHandler {
         this.timePeriod = timePeriod;
         this.timePeriodName = timePeriodName;
         this.counter = 0;
-    }
-
-    public long getCounter() {
-        return this.counter;
     }
 
     public long getTimePeriod() {
@@ -74,6 +70,7 @@ public class EventHandler {
             }
             else {
                 counter = 0;
+                this.eventList.clear();
                 this.lastEvent = currentEvent;
                 return false;
             }
@@ -83,7 +80,8 @@ public class EventHandler {
 
     @Override
     public String toString() {
-        return String.format("Event handler: %d events per %s", getEventsPerTimePeriod(),
-                Event.formatTime(timePeriodName, timePeriod));
+        return String.format("Event %s handler: %d events per %s",
+                timePeriodName, getEventsPerTimePeriod(),
+                Event.formatTime(timePeriod));
     }
 }

@@ -3,7 +3,7 @@ import ru.juriasan.timestats.TimeStatsEventListener;
 
 public class EventListenerTest {
 
-    @Test
+    @Test()
     public void initial() {
         TimeStatsEventListener listener = TimeStatsEventListener.getInstance();
         EventProducer producer = new EventProducer();

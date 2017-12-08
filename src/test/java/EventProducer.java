@@ -12,22 +12,25 @@ public class EventProducer implements Runnable {
 
     @Override
     public void run() {
-        int l = new Random(10).nextInt();
-        l = l < 0 ? 30 : l;
-        for (int i = 0; i <l ; i++) {
-            TimeStatsEventListener.getInstance().accept(new Event(System.currentTimeMillis()));
-            try {
-                Thread.sleep(5000);
-            }
-            catch (InterruptedException ex) {
-                ex.printStackTrace();
+        while(true) {
+            int l = new Random(100).nextInt();
+            l = l < 0 ? 100 : l;
+            for (int i = 0; i <l ; i++) {
+                Event e = new Event(System.currentTimeMillis());
+                TimeStatsEventListener.getInstance().accept(e);
+                try {
+                    Thread.sleep(1000);
+                }
+                catch (InterruptedException ex) {
+                    ex.printStackTrace();
+                }
             }
         }
     }
 
     public void runProducers() {
-        ExecutorService service = Executors.newFixedThreadPool(10);
-        for (int i = 0; i < 10; i++)
+        ExecutorService service = Executors.newFixedThreadPool(5);
+        for (int i = 0; i < 5; i++)
             service.execute(this);
         service.shutdown();
     }

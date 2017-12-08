@@ -4,6 +4,7 @@ import ru.juriasan.timestats.event.Event;
 import ru.juriasan.timestats.event.EventHandler;
 import ru.juriasan.timestats.util.Logger;
 
+import java.util.Date;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -17,9 +18,9 @@ public class TimeStatsEventListener implements Runnable {
     private EventHandler dayHandler;
 
     private TimeStatsEventListener() {
-        this.minuteHandler = new EventHandler(Event.MIN);
-        this.hourHandler = new EventHandler(Event.HOUR);
-        this.dayHandler = new EventHandler(Event.DAY);
+        this.minuteHandler = new EventHandler(Event.MIN, Event.MINUTES);
+        this.hourHandler = new EventHandler(Event.HOUR, Event.HOURS);
+        this.dayHandler = new EventHandler(Event.DAY, Event.DAYS);
     }
 
     public static TimeStatsEventListener getInstance() {
@@ -38,21 +39,40 @@ public class TimeStatsEventListener implements Runnable {
     }
 
     public void run() {
-        while(true) {
+        try {
+            while(true) {
+                if (Thread.currentThread().isInterrupted())
+                    throw new InterruptedException();
 
-            Event e = sharedQueue.poll();
-            if (e != null) {
-                boolean eventHasBeenHandled = false;
-                eventHasBeenHandled = minuteHandler.handleEvent(e);
-                eventHasBeenHandled |= hourHandler.handleEvent(e);
-                eventHasBeenHandled |= dayHandler.handleEvent(e);
-                if (!eventHasBeenHandled)
-                    Logger.getInstance().info(String.format("%s %s", "The event doesn't suit to any time range",
-                            e.toString()));
-                else
-                    Logger.getInstance().info(String.format("%s %s", "Successfully handled", e.toString()));
+                Event e = sharedQueue.poll();
+                if (e != null) {
+                    boolean eventHasBeenHandled = false;
+                    eventHasBeenHandled = minuteHandler.handleEvent(e);
+                    eventHasBeenHandled |= hourHandler.handleEvent(e);
+                    eventHasBeenHandled |= dayHandler.handleEvent(e);
+                    if (!eventHasBeenHandled)
+                        Logger.getInstance().info(String.format("%s %s", "The event doesn't suit to any time range",
+                                e.toString()));
+                    else {
+                        Logger.getInstance().info(toString());
+                    }
 
+                }
             }
         }
+        catch (InterruptedException ex) {
+            ex.printStackTrace();
+            Logger.getInstance().info("Producer finished its work.");
+        }
+
+    }
+
+    @Override
+    public String toString() {
+        return String.format("%d mins, %d hours %d days, time %s",
+                minuteHandler.getEventsPerTimePeriod(),
+                hourHandler.getEventsPerTimePeriod(),
+                dayHandler.getEventsPerTimePeriod(),
+                new Date().toString());
     }
 }
