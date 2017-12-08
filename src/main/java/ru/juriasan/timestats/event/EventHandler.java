@@ -133,7 +133,7 @@ public class EventHandler {
             this.lastEvent = currentEvent;
         } else if (currentEvent != null) {
             long eventsDiff = currentEvent.getTime() - lastEvent.getTime();
-            long nowDiff = System.currentTimeMillis() - lastEvent.getTime();
+            long nowDiff = System.currentTimeMillis() - currentEvent.getTime();
             if (eventsDiff <= timePeriod && nowDiff  <= timePeriod) {
                 eventList.add(currentEvent);
             }

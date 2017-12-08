@@ -64,23 +64,21 @@ public class TimeStatsEventListener implements Runnable {
      */
     public void run() {
         try {
-            int timeoutCount = 0;
             while(true) {
                 if (Thread.currentThread().isInterrupted())
                     throw new InterruptedException();
-
                 Event e = sharedQueue.poll();
                 if (e != null) {
                     boolean eventHasBeenHandled = minuteHandler.handleEvent(e);
                     eventHasBeenHandled |= hourHandler.handleEvent(e);
                     eventHasBeenHandled |= dayHandler.handleEvent(e);
                     if (!eventHasBeenHandled)
-                        Logger.getInstance().info(String.format("%s %s", "The event doesn't suit to any time range",
+                        Logger.getInstance().info(
+                                String.format("%s %s", "The event doesn't suit to any time range",
                                 e.toString()));
                     else {
                         Logger.getInstance().info(toString());
                     }
-
                 }
             }
         }
